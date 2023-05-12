@@ -23,12 +23,18 @@ const storeTaskInLocalStorage = (task) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 };
 
-const removeTaskFromLocalStorage = (deletedTask) => {
+const removeTaskFromLocalStorage = (index) => {
+  const tasks = getTasksFromLocalStorage();
+  tasks.splice(index, 1);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+};
+
+const updateTaskInLocalStorage = (previousTask, updatedTask) => {
   const tasks = getTasksFromLocalStorage();
 
-  // other variant .filter
-  const deletedIndex = tasks.findIndex((task) => task === deletedTask);
-  tasks.splice(deletedIndex, 1);
+  const taskIndex = tasks.findIndex((task) => task === previousTask);
+  tasks[taskIndex] = updatedTask;
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 };
@@ -50,6 +56,11 @@ const getTasks = () => {
     taskText.className = "delete-item";
     taskText.innerHTML = '<i class="fa fa-remove"></i>';
     li.append(taskText);
+
+    const taskIcon = document.createElement("span");
+    taskIcon.className = "change-item";
+    taskIcon.innerHTML = '<i class="fa fa-edit"></i>';
+    li.append(taskIcon);
 
     // Append li to ul
     taskList.append(li);
@@ -98,9 +109,37 @@ const removeTask = (event) => {
       // remove from DOM
 
       const deletedLi = event.target.closest("li");
+      const index = Array.from(taskList.children).indexOf(deletedLi);
       deletedLi.remove();
 
-      removeTaskFromLocalStorage(deletedLi.textContent);
+      removeTaskFromLocalStorage(index);
+    }
+  }
+};
+
+const editTask = (event) => {
+  const isEditIcon = event.target.classList.contains("fa-edit");
+
+  if (isEditIcon) {
+    const newText = prompt("Введіть нове значення:");
+
+    if (newText) {
+      const changedLi = event.target.closest("li");
+      const previousText = changedLi.textContent;
+
+      changedLi.textContent = newText;
+
+      const taskText = document.createElement("span");
+      taskText.className = "delete-item";
+      taskText.innerHTML = '<i class="fa fa-remove"></i>';
+      changedLi.append(taskText);
+
+      const taskIcon = document.createElement("span");
+      taskIcon.className = "change-item";
+      taskIcon.innerHTML = '<i class="fa fa-edit"></i>';
+      changedLi.append(taskIcon);
+
+      updateTaskInLocalStorage(previousText, newText);
     }
   }
 };
@@ -133,6 +172,8 @@ getTasks();
 form.addEventListener("submit", addTask);
 
 taskList.addEventListener("click", removeTask);
+
+taskList.addEventListener("click", editTask);
 
 clearButton.addEventListener("click", clearTasks);
 

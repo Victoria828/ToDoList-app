@@ -121,23 +121,12 @@ const editTask = (event) => {
   const isEditIcon = event.target.classList.contains("fa-edit");
 
   if (isEditIcon) {
-    const newText = prompt("Введіть нове значення:");
+    const changedLi = event.target.closest("li");
+    const previousText = changedLi.textContent;
+    const newText = prompt("Введіть нове значення:", previousText);
 
     if (newText) {
-      const changedLi = event.target.closest("li");
-      const previousText = changedLi.textContent;
-
-      changedLi.textContent = newText;
-
-      const taskText = document.createElement("span");
-      taskText.className = "delete-item";
-      taskText.innerHTML = '<i class="fa fa-remove"></i>';
-      changedLi.append(taskText);
-
-      const taskIcon = document.createElement("span");
-      taskIcon.className = "change-item";
-      taskIcon.innerHTML = '<i class="fa fa-edit"></i>';
-      changedLi.append(taskIcon);
+      changedLi.firstChild.textContent = newText;
 
       updateTaskInLocalStorage(previousText, newText);
     }
